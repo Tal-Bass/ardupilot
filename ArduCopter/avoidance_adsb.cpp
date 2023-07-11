@@ -25,11 +25,21 @@ MAV_COLLISION_ACTION AP_Avoidance_Copter::handle_avoidance(const AP_Avoidance::O
 
     // take no action in some flight modes
     if (copter.flightmode->mode_number() == Mode::Number::LAND ||
+        copter.flightmode->mode_number() == Mode::Number::STABILIZE ||
+        copter.flightmode->mode_number() == Mode::Number::LOITER ||
 #if MODE_THROW_ENABLED == ENABLED
         copter.flightmode->mode_number() == Mode::Number::THROW ||
 #endif
         copter.flightmode->mode_number() == Mode::Number::FLIP) {
         actual_action = MAV_COLLISION_ACTION_NONE;
+    }
+
+    // take no action if in RTL and already started descending
+    if (copter.flightmode->mode_number() == Mode::Number::RTL) {
+        if (copter.mode_rtl.state() == ModeRTL::SubMode::FINAL_DESCENT ||
+            copter.mode_rtl.state() == ModeRTL::SubMode::LAND) {
+            actual_action = MAV_COLLISION_ACTION_NONE;
+        }
     }
 
     // if landed and we will take some kind of action, just disarm
