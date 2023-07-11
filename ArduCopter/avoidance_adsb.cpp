@@ -79,6 +79,12 @@ MAV_COLLISION_ACTION AP_Avoidance_Copter::handle_avoidance(const AP_Avoidance::O
                 }
                 break;
 
+            case MAV_COLLISION_ACTION_BRAKE:
+                if (!handle_brake(obstacle, failsafe_state_change)) {
+                    actual_action = MAV_COLLISION_ACTION_NONE;
+                }
+                break;
+
             // unsupported actions and those that require no response
             case MAV_COLLISION_ACTION_NONE:
                 return actual_action;
@@ -260,5 +266,35 @@ bool AP_Avoidance_Copter::handle_avoidance_perpendicular(const AP_Avoidance::Obs
 
     // if we got this far we failed to set the new target
     return false;
+}
+
+bool AP_Avoidance_Copter::handle_brake(const AP_Avoidance::Obstacle *obstacle, bool allow_mode_change)
+{
+    // ensure copter is in avoid_adsb mode
+    if (!check_flightmode(allow_mode_change)) {
+        return false;
+    }
+
+    Vector3f velocity_neu;
+    if (_use_brake_alt && copter.current_loc.alt > _brake_altitude*100) {
+        
+        if (_descend_speed > 0) {
+            velocity_neu.z = -_descend_speed;
+        }
+        else {
+            velocity_neu.z = -copter.wp_nav->get_default_speed_down();
+        }
+
+        // send target velocity
+        copter.mode_avoid_adsb.set_velocity(velocity_neu);
+    
+    }
+    else {
+        // Set the velocity to 0 prior to switching to BRAKE just in case
+        copter.mode_avoid_adsb.set_velocity(velocity_neu);
+        copter.set_mode(Mode::Number::BRAKE, ModeReason::AVOIDANCE);
+    }
+
+    return true;
 }
 #endif

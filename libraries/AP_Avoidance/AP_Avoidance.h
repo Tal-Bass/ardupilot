@@ -146,6 +146,10 @@ protected:
     static Vector3f perpendicular_xyz(const Location &p1, const Vector3f &v1, const Location &p2);
     static Vector2f perpendicular_xy(const Location &p1, const Vector3f &v1, const Location &p2);
 
+    AP_Int8     _use_brake_alt;
+    AP_Int16    _brake_altitude;
+    AP_Int16    _descend_speed;
+
 private:
 
     void send_collision_all(const AP_Avoidance::Obstacle &threat, MAV_COLLISION_ACTION behaviour) const;

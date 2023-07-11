@@ -124,6 +124,29 @@ const AP_Param::GroupInfo AP_Avoidance::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("F_ALT_MIN",    12, AP_Avoidance, _fail_altitude_minimum, 0),
 
+    // @Param: F_USE_BRK_ALT
+    // @DisplayName: Use BRAKE Altitude
+    // @Description:  Opt to descend to the altitude specified by F_BRAKE_ALT prior to switching to BRAKE mode.
+    // @Units: m
+    // @User: Advanced
+    AP_GROUPINFO("USE_BRK_ALT",    13, AP_Avoidance, _use_brake_alt, 0),    
+
+    // @Param: F_BRAKE_ALT
+    // @DisplayName: Altitude Brake Fail
+    // @Description:  Altitude (relative to home) to descend to prior to switching to BRAKE. Default is 10 m.
+    // @Units: m
+    // @Range: 10 100
+    // @User: Advanced
+    AP_GROUPINFO("F_BRAKE_ALT",    14, AP_Avoidance, _brake_altitude, 10),
+
+    // @Param: F_VEL_Z
+    // @DisplayName: Descend Velocity Fail
+    // @Description: Vertical velocity used to descend to the BRAKE altitude.
+    // @Units: cm/s
+    // @Range: 0 500
+    // @User: Advanced
+    AP_GROUPINFO("F_VEL_Z",    15, AP_Avoidance, _descend_speed, 0),
+
     AP_GROUPEND
 };
 
@@ -160,6 +183,13 @@ void AP_Avoidance::init(void)
     _threat_level = MAV_COLLISION_THREAT_LEVEL_NONE;
     _gcs_cleared_messages_first_sent = std::numeric_limits<uint32_t>::max();
     _current_most_serious_threat = -1;
+
+    if (_fail_action == MAV_COLLISION_ACTION_BRAKE && _use_brake_alt > 0) {
+        if (_fail_altitude_minimum > 0 and _fail_altitude_minimum > _brake_altitude) {
+            gcs().send_text(MAV_SEVERITY_WARNING, "Incompatible brake altitude for ADSB avoid. Brake altitude is below minimum avoidance altitude.");
+        }
+    }
+
 }
 
 /*
