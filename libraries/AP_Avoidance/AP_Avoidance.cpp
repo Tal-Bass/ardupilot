@@ -185,7 +185,7 @@ void AP_Avoidance::init(void)
     _current_most_serious_threat = -1;
     _override_threat_level = false;
 
-    if (_fail_action == MAV_COLLISION_ACTION_BRAKE && _use_brake_alt > 0) {
+    if (_fail_action == 7 && _use_brake_alt > 0) {
         if (_fail_altitude_minimum > 0 and _fail_altitude_minimum > _brake_altitude) {
             gcs().send_text(MAV_SEVERITY_WARNING, "Incompatible brake altitude for ADSB avoid. Brake altitude is below minimum avoidance altitude.");
         }

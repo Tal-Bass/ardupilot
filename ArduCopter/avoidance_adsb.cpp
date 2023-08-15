@@ -89,7 +89,7 @@ MAV_COLLISION_ACTION AP_Avoidance_Copter::handle_avoidance(const AP_Avoidance::O
                 }
                 break;
 
-            case MAV_COLLISION_ACTION_BRAKE:
+            case 7:
                 if (!handle_brake(failsafe_state_change)) {
                     actual_action = MAV_COLLISION_ACTION_NONE;
                 }
